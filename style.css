@@ -1,0 +1,396 @@
+/* =====================================================
+   Hangman — "Chalkboard" theme
+   ===================================================== */
+
+:root {
+  --bg: #122019;
+  --board: #1d3528;
+  --board-edge: #0d1a13;
+  --chalk: #f4efe2;
+  --chalk-dim: #c9c2ad;
+  --amber: #e7b53f;
+  --red: #e2685c;
+  --sage: #7fa089;
+  --line: rgba(244, 239, 226, 0.16);
+  --radius: 14px;
+
+  --font-display: "Kalam", cursive;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(127, 160, 137, 0.10), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(231, 181, 63, 0.07), transparent 45%);
+  color: var(--chalk);
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ===== Board (the chalkboard panel) ===== */
+
+.board {
+  width: 100%;
+  max-width: 760px;
+  background: var(--board);
+  border: 10px solid var(--board-edge);
+  border-radius: var(--radius);
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.45),
+    inset 0 0 60px rgba(0, 0, 0, 0.35);
+  padding: 28px clamp(18px, 4vw, 40px) 36px;
+}
+
+.board__header {
+  text-align: center;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--sage);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7vw, 3.4rem);
+  margin: 0;
+  color: var(--chalk);
+  text-shadow: 0 0 14px rgba(244, 239, 226, 0.18);
+}
+
+.title__dot {
+  color: var(--amber);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--chalk-dim);
+  font-size: 0.92rem;
+}
+
+/* ===== Game layout ===== */
+
+.game {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .game {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Gallows / hangman drawing ===== */
+
+.gallows-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.gallows {
+  width: 100%;
+  max-width: 220px;
+}
+
+.chalk-line {
+  fill: none;
+  stroke: var(--chalk);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 2px rgba(244, 239, 226, 0.35));
+}
+
+.gallows circle.chalk-line {
+  fill: none;
+}
+
+.base, .post, .beam, .rope {
+  stroke: var(--sage);
+  opacity: 0.9;
+}
+
+.part {
+  stroke: var(--red);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.part.visible {
+  opacity: 1;
+}
+
+.attempts {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--chalk-dim);
+}
+
+#attempts-left {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+/* ===== Play panel ===== */
+
+.play-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.message {
+  margin: 0;
+  min-height: 1.4em;
+  color: var(--amber);
+  font-size: 0.95rem;
+}
+
+.word-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.letter-slot {
+  min-width: 0.9em;
+  text-align: center;
+  border-bottom: 3px solid var(--sage);
+  padding-bottom: 2px;
+  text-transform: uppercase;
+  color: var(--chalk);
+}
+
+.letter-slot.blank {
+  color: transparent;
+}
+
+/* ===== Guess form ===== */
+
+.guess-form {
+  display: flex;
+  gap: 10px;
+}
+
+#letter-input {
+  width: 64px;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  text-align: center;
+  text-transform: uppercase;
+  background: rgba(244, 239, 226, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--chalk);
+}
+
+#letter-input:focus {
+  outline: 2px solid var(--amber);
+  outline-offset: 1px;
+}
+
+#submit-guess, .restart-btn, #overlay-restart-btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+#submit-guess {
+  flex: 1;
+  background: var(--amber);
+  color: #1d1505;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+}
+
+#submit-guess:hover {
+  transform: translateY(-1px);
+}
+
+#submit-guess:disabled,
+#letter-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== On-screen keyboard ===== */
+
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
+}
+
+@media (max-width: 420px) {
+  .keyboard {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+.key {
+  padding: 8px 0;
+  background: rgba(244, 239, 226, 0.07);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--chalk);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+
+.key:hover:not(:disabled) {
+  background: rgba(244, 239, 226, 0.16);
+  transform: translateY(-1px);
+}
+
+.key:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.key.correct {
+  background: rgba(127, 160, 137, 0.4);
+  border-color: var(--sage);
+}
+
+.key.wrong {
+  background: rgba(226, 104, 92, 0.35);
+  border-color: var(--red);
+}
+
+/* ===== Guessed letters list ===== */
+
+.guessed-panel h2 {
+  margin: 4px 0 4px;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+
+.guessed-list {
+  margin: 0;
+  color: var(--chalk-dim);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+/* ===== Restart button ===== */
+
+.restart-btn {
+  background: transparent;
+  border: 1px solid var(--sage);
+  color: var(--chalk);
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+.restart-btn:hover {
+  background: rgba(127, 160, 137, 0.15);
+}
+
+/* ===== Win / lose overlay ===== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 14, 11, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity 0.2s ease;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay__card {
+  background: var(--board);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  text-align: center;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+#result-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  margin: 0 0 10px;
+  color: var(--amber);
+}
+
+#result-title.lost {
+  color: var(--red);
+}
+
+#result-text {
+  margin: 0 0 20px;
+  color: var(--chalk-dim);
+}
+
+#result-word {
+  color: var(--chalk);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#overlay-restart-btn {
+  background: var(--amber);
+  color: #1d1505;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+}
+
+#overlay-restart-btn:hover {
+  transform: translateY(-1px);
+}
